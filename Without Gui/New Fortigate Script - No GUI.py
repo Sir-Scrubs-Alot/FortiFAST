@@ -9,6 +9,7 @@ This script prompts the technician for several key pieces of information, before
 - Sets a static route
 - Enables SNMP on the Local Network Interface
 - Enables SNMP Agent
+- Enables SYSLOG and points it to the auvik collector
 - Configures SNMP Community String on the Router and any Switches that would get connected to it. Points back to the auvik collector.
 - Creates BBQ&Guns Address and "Friendly Countries" Address Group
 - Creates a log file and dumps each command to it
@@ -299,6 +300,17 @@ chan.send('\n')
 chan.send('end')
 chan.send('\n')
 time.sleep(1)
+
+# Configure Syslog
+chan.send('config log syslogd setting')
+chan.send('\n')
+chan.send('set status enable')
+chan.send('\n')
+chan.send('set server '+ ipofauvikcollector)
+chan.send('\n')
+chan.send('end')
+chan.send('\n')
+time.sleep(1)    
 
 if phonesystem == "y":
     # Begin configuring Allworx VIPs

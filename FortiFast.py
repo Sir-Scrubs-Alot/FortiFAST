@@ -1,3 +1,28 @@
+"""
+Author: Sir Scrubs Alot
+Version: v0.9
+Python Version: 3.9.6
+Summary:
+This script prompts the technician for several key pieces of information, before performing the following:
+- Creates a log file and dumps each command to it. The log file will be in the root of the directory where you're running the script
+- Assigns a Hostname and Password to the Fortigate
+- Sets a static IP and Subnet to WAN1. Only ping and https will be an options
+- Sets a static route so all IP addresses go through the ISP gateway
+- Enables SNMP on the Local Network Interface
+- Enables SNMP Agent
+- Configures SNMP Community String on the Router and any Switches that would get connected to it. Points back to the auvik collector.
+- Creates BBQ&Guns Address and "Friendly Countries" Address Group
+- Enables SYSLOG and points it to the auvikcollector
+- Prompt tech if they're installing a phone system, if they check the box and fill out the information, then the script will create the allworx VIP's, Group, and Policy. Note: It defaults to using 'lan' in the policy.
+
+
+Modifications:
+- The script was calling "lan" in several spots instead of the variable localnetworkinterface
+- It now queries for the internal lan by its ip 192.168.1.99
+- In doing so, the top half of the log file got cut off since it breaks the data stream. I added the variable input_values and added it to the top of the log file that gets created
+"""
+
+
 import paramiko
 import cmd
 import time
@@ -17,6 +42,7 @@ root.title("Forti-Freaking-Awesome-Scripting-Tool")
 
 def launch():
     try:
+        
         # Code to be executed when the button is clicked
         fortigatehostname = fortigatehostname_entry.get()
         fortipassword = fortipassword_entry.get()
@@ -31,7 +57,26 @@ def launch():
         if phonesystem == 1:
             allworxpublicvip = allworxpublicvip_entry.get()
             allworxprivateip = allworxprivateip_entry.get()
-            # localnetworkinterface = input('Local Network Interface Name Example: lan):\n')
+        '''
+
+        # Static Variables -- Used for quick testing ============================================================
+        fortigatehostname = "ECMSI_FGT60F"
+        fortipassword = "Password1"
+        wan1publicip = "10.20.30.2"
+        wan1subnet = "255.255.255.255"
+        ispgateway = "10.20.30.1"
+        ipofauvikcollector = "192.168.1.5"
+        snmpdescription = fortigatehostname
+        rocommunitystring = "testcommunitystring"
+        phonesystem = phonesystem_checkbox.get()
+
+        if phonesystem == 1:
+            allworxpublicvip = "10.20.30.3"
+            allworxprivateip = "192.168.1.3"
+        # Static Variables -- Used for quick testing ============================================================
+        '''
+
+        
 
         # Create Variable containing the input values. This will be added to the top of the log file.
         input_values = f"fortigatehostname = {fortigatehostname}\nfortipassword = {fortipassword}\nwan1publicip = {wan1publicip}\nwan1subnet = {wan1subnet}\nispgateway = {ispgateway}\nipofauvikcollector = {ipofauvikcollector}\nsnmpdescription = {snmpdescription}\nrocommunitystring = {rocommunitystring}\nphonesystem = {phonesystem}\n\n"
@@ -258,6 +303,18 @@ def launch():
         chan.send('end')
         chan.send('\n')
         time.sleep(1)
+
+
+        # Configure Syslog
+        chan.send('config log syslogd setting')
+        chan.send('\n')
+        chan.send('set status enable')
+        chan.send('\n')
+        chan.send('set server '+ ipofauvikcollector)
+        chan.send('\n')
+        chan.send('end')
+        chan.send('\n')
+        time.sleep(1)        
 
         if phonesystem == 1:
             # Begin configuring Allworx VIPs
@@ -549,7 +606,7 @@ def launch():
 
             ssh.close()
 
-            CTkMessagebox(title="Results", message="Done!")
+        CTkMessagebox(title="Results", message="Done!")
 
             
     except Exception as e:

@@ -24,3 +24,8 @@ Modifications:
 
 Dev Note for Compiling Script:
 To compile FortiFast.py, launch command prompt and run "python setup.py build"
+
+
+
+Running the script:
+Download the FortiFAST.zip, unzip, then run FortiFAST.exe

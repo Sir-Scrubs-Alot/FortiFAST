@@ -1,5 +1,7 @@
 Running the script:
 Download the FortiFAST.zip, unzip, then run FortiFAST.exe
+Note: If you get an error when running the .exe, you'll need to download the appropriate VC_redist.x64.exe (C++ redistributable) for your version of windows from Microsoft's website: 
+https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170
 
 
 
